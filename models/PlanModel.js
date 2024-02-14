@@ -31,7 +31,10 @@ const planSchema = mongoose.Schema({
     }],
     userRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'User'
-    }]  
+    }],
+    attendanceRefs: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
+    }
 }, {timestamps: true})
 
 

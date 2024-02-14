@@ -22,6 +22,10 @@ const userSchema = mongoose.Schema({
         //required: true,
         min: 8
     },
+    team: {
+        type: String,
+        default: ""
+    },
     profilePicture: {
         type: String,
         default: ""
@@ -29,6 +33,9 @@ const userSchema = mongoose.Schema({
     isAdmin: {
         type: Boolean,
         default: false
+    },
+    attendanceRefs: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
     },
     planRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Plan'

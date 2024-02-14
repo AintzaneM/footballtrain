@@ -81,30 +81,6 @@ exports.assignExcerciseToPlan = async (req, res) => {
   }
 };
 
-exports.updateUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updateData = req.body;
-
-    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
-      new: true,
-    });
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found." });
-    }
-    console.log({
-      message: "User updated successfully.",
-      userUpdated: updatedUser,
-    });
-    res.status(200).json(userUpdated);
-  } catch (error) {
-    console.error("Error updating user:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while updating the user." });
-  }
-};
-
 exports.getSpecificPlan = async (req, res) => {
   try {
     const { id } = req.params;
