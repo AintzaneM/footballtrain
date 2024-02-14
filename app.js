@@ -6,9 +6,8 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
 const bodyParser = require('body-parser');
-const userRouter = require('./routes/userRoutes')
-const planRouter = require('./routes/planRoutes');
-const exerciseRouter = require('./routes/exerciseRoutes');
+
+
 
 const app = express();
 // ℹ️ Middleware that adds a "req.session" information and later to check that you are who you say you are 😅
@@ -35,9 +34,17 @@ app.use(
     extended: true,
   }),
 );
-app.use('/api', userRouter);
+//const userRouter = require('./routes/userRoutes');
+//app.use('/api', userRouter);
+const authRouter = require ('./routes/authRoutes');
+app.use('/api', authRouter);
+const planRouter = require('./routes/planRoutes');
 app.use('/api', planRouter);
+const exerciseRouter = require('./routes/exerciseRoutes');
 app.use('/api', exerciseRouter);
+const attendanceRouter = require('./routes/attendanceRoutes');
+app.use('/api', attendanceRouter);
+
 
 
 
