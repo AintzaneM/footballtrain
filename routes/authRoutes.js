@@ -21,7 +21,7 @@ router.get("/logout", isLoggedIn, isLoggedIn, logout);
 router.put("/usuarios/:id", emailAndpasswordValidator, emailAndpasswordValidate, updateUser); 
 
 //delete an user -> ELIMINAR CUENTA USUARIO
-router.delete("/usuarios/:id", isLoggedIn, userValidator, validate, deleteUser,);
+router.delete("/usuarios/:id", isLoggedIn, deleteUser,);
 
 
 //TODO
