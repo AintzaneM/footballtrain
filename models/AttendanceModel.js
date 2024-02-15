@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 
 const attendanceSchema = new mongoose.Schema({
-    userRefs: {
+    userRefs: [{
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User',
         required: true
-    }, 
-    planRefs: {
+    }], 
+    planRefs: [{
        type: mongoose.Schema.Types.ObjectId,
        ref: 'Plan',
         //required: true
-    },
+    }],
     date: {
         type: Date,
         default: Date.now,

@@ -34,9 +34,13 @@ const userSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
-    attendanceRefs: {
-        type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
+    isTrainer: {
+        type: Boolean,
+        default: false 
     },
+    attendanceRefs: [{
+        type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
+    }],
     planRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Plan'
     }]
