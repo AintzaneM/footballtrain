@@ -22,28 +22,27 @@ const userSchema = mongoose.Schema({
         //required: true,
         min: 8
     },
-    teamRefs: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Team' 
-    }],
+    role: {
+        type: String,
+        enum: ['player', 'trainer', "admin"],
+        default: 'player' // Default role is user
+    },
+
     profilePicture: {
         type: String,
         default: ""
     },
-    isAdmin: {
-        type: Boolean,
-        default: false
-    },
-    isTrainer: {
-        type: Boolean,
-        default: false 
-    },
+    teamRefs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team' 
+    }],
     attendanceRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
     }],
     planRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Plan'
     }]
+
 }, {timestamps: true})
 
 

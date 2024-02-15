@@ -34,8 +34,7 @@ app.use(
     extended: true,
   }),
 );
-//const userRouter = require('./routes/userRoutes');
-//app.use('/api', userRouter);
+
 const authRouter = require ('./routes/authRoutes');
 app.use('/api', authRouter);
 const planRouter = require('./routes/planRoutes');
@@ -46,6 +45,8 @@ const attendanceRouter = require('./routes/attendanceRoutes');
 app.use('/api', attendanceRouter);
 const teamRouter = require('./routes/teamRoutes');
 app.use('/api', teamRouter);
+const userRouter = require('./routes/userRoutes');
+app.use('/api', userRouter);
 
 
 
