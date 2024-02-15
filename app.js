@@ -44,6 +44,8 @@ const exerciseRouter = require('./routes/exerciseRoutes');
 app.use('/api', exerciseRouter);
 const attendanceRouter = require('./routes/attendanceRoutes');
 app.use('/api', attendanceRouter);
+const teamRouter = require('./routes/teamRoutes');
+app.use('/api', teamRouter);
 
 
 

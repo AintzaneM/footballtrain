@@ -22,10 +22,10 @@ const userSchema = mongoose.Schema({
         //required: true,
         min: 8
     },
-    team: {
-        type: String,
-        default: ""
-    },
+    teamRefs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team' 
+    }],
     profilePicture: {
         type: String,
         default: ""

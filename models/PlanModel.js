@@ -26,15 +26,20 @@ const planSchema = mongoose.Schema({
     progress: {
         type: Number,// Track the user's progress (e.g., percentage completed)
     },
+    trainerName: {
+        type: String,
+        required: true,
+        trim: true,
+    },
     excerciseRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Excercise'
     }],
     userRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'User'
     }],
-    attendanceRefs: {
+    attendanceRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
-    }
+    }]
 }, {timestamps: true})
 
 

@@ -7,7 +7,7 @@ exports.createUser = async (req, res, next) => {
   try {
     console.log("requestbody",req.body)
 
-    const { username, email, password, team, isAdmin } = req.body;
+    const { username, email, password, team, isAdmin, isTrainer } = req.body;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
@@ -17,6 +17,7 @@ exports.createUser = async (req, res, next) => {
       password: hashedPassword,
       team,
       isAdmin,
+      isTrainer,
     });
 
     const user = await newUser.save();
