@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const planSchema = mongoose.Schema({
     category: {
         type: String,
-        required: true,
+        //required: true,
         trim: true
     },
     planTitle: {
@@ -39,6 +39,9 @@ const planSchema = mongoose.Schema({
     }],
     attendanceRefs: [{
         type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
+    }],
+    teamRefs: [{
+        type: mongoose.Schema.Types.ObjectId, ref: 'Team'
     }]
 }, {timestamps: true})
 

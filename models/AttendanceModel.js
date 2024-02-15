@@ -11,6 +11,11 @@ const attendanceSchema = new mongoose.Schema({
        ref: 'Plan',
         //required: true
     }],
+    teamRefs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Team',
+         //required: true
+     }],
     date: {
         type: Date,
         default: Date.now,

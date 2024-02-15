@@ -1,18 +1,34 @@
 const Plan = require("../models/PlanModel");
 const Exercise = require("../models/ExerciseModel");
+const User = require("../models/UserModel");
+const Team = require("../models/TeamModel");
+const Attendance = require("../models/AttendanceModel");
+const { default: mongoose } = require("mongoose");
 
+
+//es necesario al crear el entrenamiento userRef, attendanceRefs, teamRefs, no será hasta que exista en la base de datos y se haya creado que contendrá un usuario, un team etc...!!
 exports.createPlan = async (req, res, next) => {
+  let {
+    category,
+    planTitle,
+    planDescription,
+    dateStart,
+    dateEnd,
+    progress,
+    trainerName,
+    //excerciseRefs,
+    userRefs,
+    attendanceRefs,
+    teamRefs,
+  } = req.body;
+console.log(req.body)
   try {
-    const {
-      category,
-      planTitle,
-      planDescription,
-      dateStart,
-      dateEnd,
-      progress,
-      excerciseRefs,
-      userRefs,
-    } = req.body;
+    userRefs = Array.isArray(userRefs) ? userRefs : [userRefs];
+    attendanceRefs = Array.isArray(attendanceRefs) ? attendanceRefs : [attendanceRefs];
+    teamRefs = Array.isArray(teamRefs) ? teamRefs : [teamRefs];
+   
+     // Assume trainerName from req.user.username
+     const trainerName = req.user.username;
 
     const newPlan = new Plan({
       category,
@@ -21,13 +37,29 @@ exports.createPlan = async (req, res, next) => {
       dateStart,
       dateEnd,
       progress,
-      excerciseRefs: [],
-      userRefs: [],
+      //excerciseRefs: [],
+      trainerName,
+      userRefs: userRefs,
+      attendanceRefs: attendanceRefs,
+      teamRefs: teamRefs, 
     });
 
     const plan = await newPlan.save();
     console.log({ message: "plan saved", plan });
+
+    // Update user documents to include reference to plan record
+    const updateUserPromises = userRefs.map(userId => User.findByIdAndUpdate(userId, { $push: { planRefs: plan._id } }));
+
+    // Update team document to include reference to plan record
+    const updateTeamPromises = teamRefs.map(teamId => Team.findByIdAndUpdate(teamId, { $push: { planRefs: plan._id }}));
+    // Update attendance document to include reference to plan record
+    const updateAttendancePromises = attendanceRefs.map(attendanceId => Attendance.findByIdAndUpdate(attendanceId, { $push: { planRefs: plan._id }}));
+
+    await Promise.all([updateUserPromises, updateTeamPromises, updateAttendancePromises]);
+
     res.status(200).json(plan);
+    console.log({ message: "plan saved and updated", plan });
+
   } catch (error) {
     console.error("Error creating plan", error);
     res.status(500).json({ error: "error while saving a new plan" });
@@ -45,41 +77,6 @@ exports.getPlans = async (req, res) => {
   }
 };
 
-exports.assignExcerciseToPlan = async (req, res) => {
-  try {
-    const ejercicioId = req.params.ejercicioId;
-    const entrenamientoId = req.params.entrenamientoId;
-
-    const exercise = await Exercise.findById(ejercicioId);
-    const plan = await Plan.findById(entrenamientoId);
-    
-    if (!exercise) {
-      return res.status(404).json({ message: "Excercise not found." });
-    }
-
-    if (!plan) {
-      return res.status(404).json({ message: "Plan not found." });
-    }
-
-    // Check if the user is already assigned to the plan
-    if (plan.excerciseRefs.includes(ejercicioId)) {
-      
-      return res
-        .status(400)
-        .json({ message: "Exercise is already assigned to the plan." });
-    }
-
-    plan.excerciseRefs.push(ejercicioId);
-    await plan.save();
-
-    return res
-      .status(200)
-      .json({ message: "Exercise assigned to plan successfully." });
-  } catch (error) {
-    console.error("Error assigning exercise to plan:", error);
-    return res.status(500).json({ message: "An error occurred." });
-  }
-};
 
 exports.getSpecificPlan = async (req, res) => {
   try {

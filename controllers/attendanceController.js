@@ -2,22 +2,23 @@ const Plan = require("../models/PlanModel");
 const Exercise = require("../models/ExerciseModel");
 const User = require("../models/UserModel");
 const Attendance = require ("../models/AttendanceModel")
+const Team = require ("../models/TeamModel")
 
 exports.markAttendance = async (req, res, next) => {
-    let { userRefs, planRefs } = req.body;
+    let { userRefs, planRefs, teamRefs } = req.body;
 
     try {
         // Ensure userRefs is an array
         userRefs = Array.isArray(userRefs) ? userRefs : [userRefs];
         planRefs = Array.isArray(planRefs) ? planRefs : [planRefs];
-
+        teamRefs = Array.isArray(teamRefs) ? teamRefs : [teamRefs];
 
           // Check if attendance record already exists for the user and plan on the current date
         const currentDate = new Date();
         const startOfDay = new Date(currentDate.setHours(0, 0, 0));
         const endOfDay = new Date(currentDate.setHours(23, 59, 59));
         // Check if attendance record already exists for the user and date
-        const existingAttendance = await Attendance.findOne({ userRefs: { $in: userRefs }, planRefs, date: { $gte: new Date(new Date().setHours(0, 0, 0)), $lt: new Date(new Date().setHours(23, 59, 59)) } });
+        const existingAttendance = await Attendance.findOne({ userRefs: { $in: userRefs }, planRefs, teamRefs, date: { $gte: new Date(new Date().setHours(0, 0, 0)), $lt: new Date(new Date().setHours(23, 59, 59)) } });
 
         if (existingAttendance) {
             return res.status(400).json({ message: "Attendance already marked for today" });
@@ -27,19 +28,24 @@ exports.markAttendance = async (req, res, next) => {
         const attendance = new Attendance({
             userRefs: userRefs,
             planRefs: planRefs,
+            teamRefs: teamRefs,
             date: new Date(),
             marked: true
         });
 
         await attendance.save();
 
+
         // Update user documents to include reference to attendance record
-        const updateUserPromises = userRefs.map(userId => User.findByIdAndUpdate(userId, { $push: { attendanceRefs: attendance._id }, $addToSet: { planRefs: planRefs }}));
+        const updateUserPromises = userRefs.map(userId => User.findByIdAndUpdate(userId, { $push: { attendanceRefs: attendance._id } }));
 
-        // Update plan document to include reference to attendance record
-        const updatePlanPromises = planRefs.map(planId => Plan.findByIdAndUpdate(planId, { $push: { attendanceRefs: attendance._id }, $addToSet: { userRefs: { $each: userRefs } } }));
+        // Update plan documents to include reference to attendance record
+        const updatePlanPromises = planRefs.map(planId => Plan.findByIdAndUpdate(planId, { $push: { attendanceRefs: attendance._id } }));
 
-        await Promise.all([...updateUserPromises, updatePlanPromises]);
+        // Update team documents to include reference to attendance record
+       const updateTeamPromises = teamRefs.map(teamId => Team.findByIdAndUpdate(teamId , { $push: { attendanceRefs: attendance._id } }));
+
+        await Promise.all([...updateUserPromises, ...updatePlanPromises, ...updateTeamPromises]);
 
         return res.status(200).json({ message: "Attendance marked successfully" });
 
