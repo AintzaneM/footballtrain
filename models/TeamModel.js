@@ -17,14 +17,25 @@ const teamSchema = mongoose.Schema({
         //required: true,
         trim: true
     },
-    userRefs : [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'User'
+    clubRefs: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Club' 
     }],
-    planRefs : [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'Plan'
+    trainerRefs: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
     }],
-    attendanceRefs : [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
+    playerRefs: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
+    }],
+    planRefs: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Plan'
+    }],
+    attendanceRefs: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Attendance'
     }]
 
 }, {timestamp: true})

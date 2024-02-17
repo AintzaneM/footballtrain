@@ -2,12 +2,7 @@ const mongoose = require('mongoose');
 
 
 const planSchema = mongoose.Schema({
-    category: {
-        type: String,
-        //required: true,
-        trim: true
-    },
-    planTitle: {
+    planName: {
         type: String,
         required: true,
         trim: true
@@ -31,18 +26,27 @@ const planSchema = mongoose.Schema({
         required: true,
         trim: true,
     },
-    excerciseRefs: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'Excercise'
+    clubRefs: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Club'
     }],
-    userRefs: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'User'
+    trainerRefs: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
     }],
-    attendanceRefs: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'Attendance'
+    playerRefs: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User'
     }],
     teamRefs: [{
-        type: mongoose.Schema.Types.ObjectId, ref: 'Team'
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Team'
+    }],
+    attendanceRefs: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Attendance'
     }]
+    
 }, {timestamps: true})
 
 
