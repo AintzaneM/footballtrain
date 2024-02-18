@@ -58,7 +58,7 @@ exports.assignUserToTeam = async (req, res, next) => {
 
     // Validate user ID and plan ID
     if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(equipoId)) {
-      return res.status(400).json({ message: "Invalid user or plan ID." });
+      return res.status(400).json({ message: "Invalid user or plan ID: {}" });
     }
 
 

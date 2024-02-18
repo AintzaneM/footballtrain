@@ -49,7 +49,7 @@ exports.markAttendance = async (req, res, next) => {
 
         return res.status(200).json({ message: "Attendance marked successfully" });
 
-        
+        next();
     } catch (error) {
         console.error("Error marking attendance:", error);
         return res.status(500).json({ error: "Internal server error" });
@@ -57,11 +57,12 @@ exports.markAttendance = async (req, res, next) => {
 };
 
 // Endpoint to get the attendance register
-exports.attendanceRegister = async (req, res) => {
+exports.attendanceRegister = async (req, res, next) => {
     try {
         const attendanceRegister = await Attendance.find().populate('userRefs planRefs');
 
         return res.status(200).json(attendanceRegister);
+        next();
     } catch (error) {
         console.error("Error fetching attendance register:", error);
         return res.status(500).json({ error: "Internal server error" });

@@ -7,8 +7,8 @@ exports.createUser = async (req, res, next) => {
   try {
     console.log("requestbody", req.body)
 
-    const { username, email, password, role, teamRefs, attendanceRefs,
-      planRefs, } = req.body;
+    const { username, email, password, profilePicture, clubName, teamName, role, clubRefs, teamRefs,
+      planRefs, attendanceRefs, } = req.body;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
@@ -16,17 +16,20 @@ exports.createUser = async (req, res, next) => {
       username,
       email,
       password: hashedPassword,
+      profilePicture,
+      clubName,
+      teamName,
       role,
       teamRefs,
       attendanceRefs,
       planRefs,
-
+      clubRefs,
     });
 
     const user = await newUser.save();
     console.log({ message: "user saved", user });
     res.status(200).json(user);
-
+    next();
   } catch (error) {
     console.error("Error creating user", error);
     res.status(500).json({ error: "error while saving a new user" });
@@ -47,16 +50,18 @@ exports.loginUser = async (req, res, next) => {
     req.session.user = user;
 
     res.status(200).json({ message: "login successful" });
+    next();
   } catch (error) {
     console.error("Error login user", error);
     res.status(500).json({ error: "error while loggin an user" });
   }
 };
 
-exports.loggedInUser = async (req, res) => {
+exports.loggedInUser = async (req, res, next) => {
   if (req.session.user) {
     console.log({ message: "user is logged in" })
     res.status(200).json({ isLoggedIn: true });
+    next();
   } else {
     console.log({ message: "user is not logged in" })
     res.status(200).json({ isLoggedIn: false });
@@ -73,9 +78,13 @@ exports.logout = async (req, res) => {
   });
 };
 
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      res.status(400).json({ message: 'Specified team id is not valid: {userId}' });
+      return;
+    }
     const updateData = req.body;
 
     if (updateData.password) {
@@ -90,15 +99,20 @@ exports.updateUser = async (req, res) => {
     }
     console.log({ message: "User updated successfully.", userUpdated: updatedUser });
     res.status(200).json(updatedUser);
+    next();
   } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ error: "An error occurred while updating the user." });
   }
 };
 
-exports.deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      res.status(400).json({ message: 'Specified team id is not valid: {userId}' });
+      return;
+    }
     const deletedUser = await User.findByIdAndDelete(id);
     if (!deletedUser) {
       return res.status(404).json({ error: "User not found." });

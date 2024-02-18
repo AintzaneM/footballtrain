@@ -59,9 +59,7 @@ exports.createClub = async (req, res, next) => {
 
     await Promise.all([...updateUserPromises, ...updateTeamPromises]);
 
-    console.log({ message: "club saved", club });
-
-    res.status(200).json({ club, clubExists });
+    res.status(200).json({ club: club, clubExists: clubExists });
     next();
   } catch (error) {
     console.error("Error creating club", error);
@@ -87,7 +85,7 @@ exports.getSpecificClub = async (req, res, next) => {
     const club = await Club.findById(clubId);
     console.log({ message: "club get succesfully", club: club });
     res.status(200).json(club);
-    
+    next();
   } catch (error) {
     console.error("Error getting club", error);
     res.status(500).json({ error: "error while getting an club" });
@@ -98,9 +96,8 @@ exports.updateClub = async (req, res, next) => {
   try {
     const { clubId } = req.params;
     console.log(clubId)
-     // Check if clubId is a valid ObjectId
      if (!mongoose.Types.ObjectId.isValid(clubId)) {
-      return res.status(400).json({ error: 'Invalid club ID.' });
+      return res.status(400).json({ error: 'Invalid club ID: {clubId}' });
     }
     const updateData = req.body;
       
@@ -120,6 +117,10 @@ exports.updateClub = async (req, res, next) => {
 exports.deleteClub = async (req, res, next) => {
   try {
     const { clubId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(clubId)) {
+      res.status(400).json({ message: 'Specified club id is not valid: {clubId}' });
+      return;
+    }
     const deletedClub = await Club.findByIdAndDelete(clubId);
     if (!deletedClub) {
       return res.status(404).json({ error: "Club not found." });
