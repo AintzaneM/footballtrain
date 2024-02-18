@@ -7,7 +7,7 @@ const teamSchema = mongoose.Schema({
         //required: true,
         trim: true
     },
-    category : {
+    teamCategory : {
         type: String,
         //required: true,
         trim: true

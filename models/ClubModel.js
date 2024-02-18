@@ -15,7 +15,10 @@ const clubSchema = mongoose.Schema({
         ref: 'User' }],
     teamRefs: [{ 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Teams' }],
+        ref: 'Team' }],
+    clubRefs: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Club' }],
 }, { timestamp: true })
 
 

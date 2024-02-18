@@ -18,10 +18,10 @@ router.get("/loggedin", loggedInUser);
 router.get("/logout", isLoggedIn, isLoggedIn, logout);
 
 //update an user -> ACTUALIZAR PERFIL    
-router.put("/usuarios/:id", emailAndpasswordValidator, emailAndpasswordValidate, updateUser); 
+router.put("/usuarios/:userId", emailAndpasswordValidator, emailAndpasswordValidate, updateUser); 
 
 //delete an user -> ELIMINAR CUENTA USUARIO
-router.delete("/usuarios/:id", isLoggedIn, deleteUser,);
+router.delete("/usuarios/:userId", isLoggedIn, deleteUser,);
 
 
 //TODO
