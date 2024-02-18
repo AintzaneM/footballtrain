@@ -1,5 +1,5 @@
 const Plan = require("../models/PlanModel");
-const Exercise = require("../models/ExerciseModel");
+const Club = require("../models/ClubModel");
 const User = require("../models/UserModel");
 const Team = require("../models/TeamModel");
 const Attendance = require("../models/AttendanceModel");

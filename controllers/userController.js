@@ -9,8 +9,8 @@ exports.getUsers = async (req, res) => {
     console.log({ message: "users get succesfully", users: users });
     res.status(200).json(users);
   } catch (error) {
-    console.error("Error getting plans", error);
-    res.status(500).json({ error: "error while getting a plan" });
+    console.error("Error getting users", error);
+    res.status(500).json({ error: "error while getting a user" });
   }
 };
 
