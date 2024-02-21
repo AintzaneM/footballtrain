@@ -1,6 +1,7 @@
 const User = require("../models/UserModel");
 const Plan = require("../models/PlanModel");
 const Team = require("../models/TeamModel");
+const Club = require("../models/ClubModel");
 const { default: mongoose } = require("mongoose");
 
 exports.getUsers = async (req, res) => {
@@ -106,6 +107,59 @@ async function assignUsersToTeam(equipoId, userIds, req, res) {
   
 }
 
+exports.assignClubToTeam = async (req, res, next) => {
+  const { clubId, teamId } = req.body;
+
+  try {
+    // Find the club document by its ID
+    const club = await Club.findById(clubId);
+    if (!club) {
+      return res.status(404).json({ message: "Club not found" });
+    }
+
+    // Find the team document by its ID
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Update clubRefs in team schema
+    team.clubRefs.addToSet(clubId);
+    await team.save();
+
+    // Update teamRefs in club schema
+    club.teamRefs.addToSet(teamId);
+
+    // Update playerRefs and trainerRefs in club schema
+    club.playerRefs.addToSet(...team.playerRefs);
+    club.trainerRefs.addToSet(...team.trainerRefs);
+
+
+    // Update teamRefs in user schema
+    const playersToUpdate = await User.find({ _id:{$in: team.playerRefs}});
+    for (const player of playersToUpdate) {
+      player.teamRefs.addToSet(teamId);
+      player.clubRefs.addToSet(clubId);
+      await player.save();
+    }
+
+    const trainersToUpdate = await User.find({ _id:{$in: team.trainerRefs}});
+    for (const trainer of trainersToUpdate) {
+      trainer.teamRefs.addToSet(teamId);
+      trainer.clubRefs.addToSet(clubId);
+      await trainer.save();
+    }
+
+    // Save the modified club document back to the database
+    await club.save();
+
+    res.status(200).json({ message: "Team assigned to club successfully" });
+  } catch (error) {
+    console.error('Error assigning team to club:', error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+
+}
 
 
 //join
