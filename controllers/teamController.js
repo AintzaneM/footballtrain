@@ -45,7 +45,7 @@ exports.createTeam = async (req, res, next) => {
       teamName,
       teamCategory,
       trainerName: req.user.username,
-      trainerRefs, 
+      trainerRefs: req.user._id, 
       playerRefs, 
       clubRefs, 
       planRefs,
@@ -59,14 +59,14 @@ exports.createTeam = async (req, res, next) => {
 
     // Update club documents to include reference to team record
     const updateClubRefsPromises = clubRefs.map(clubId => Club.findByIdAndUpdate(clubId, { $push: { teamRefs: savedTeam._id } }, { new: true }));
-
+/*
     // Update plan document to include reference to team record
-    const updatePlanPromises = planRefs.map(planId => Plan.findByIdAndUpdate(planId, { $push: { teamRefs: savedTeam._id } }, { new: true }));
-
+    //const updatePlanPromises = planRefs.map(planId => Plan.findByIdAndUpdate(planId, { $push: { teamRefs: savedTeam._id } }, { new: true }));
+*/
     // Update plan document to include reference to attendance record
     const updateAttendancePromises = attendanceRefs.map(attendanceId => Attendance.findByIdAndUpdate(attendanceId, { $push: { teamRefs: savedTeam._id } }, { new: true }));
 
-    await Promise.all([...updateUserPromises, ...updateClubRefsPromises, ...updatePlanPromises, ...updateAttendancePromises]);
+    await Promise.all([...updateUserPromises, ...updateClubRefsPromises, ...updateAttendancePromises]);
     // Respond with the newly created team
     res.status(200).json({ team: savedTeam, teamExists: teamExists });
 

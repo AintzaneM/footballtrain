@@ -37,7 +37,7 @@ const userSchema = mongoose.Schema({
     role: {
         type: String,
         enum: ['player', 'trainer', "admin"],
-        default: 'player' // Default role is user
+        default: '' ,// Default role is user
     },
     clubRefs: [{
         type: mongoose.Schema.Types.ObjectId,

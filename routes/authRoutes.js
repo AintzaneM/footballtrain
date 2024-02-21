@@ -15,7 +15,7 @@ router.post("/inicio", isLoggedIn, emailAndpasswordValidator, emailAndpasswordVa
 router.get("/loggedin", loggedInUser);
 
 //logged out -> CERRAR SESIÓN
-router.get("/logout", isLoggedIn, isLoggedIn, logout);
+router.get("/logout", isLoggedIn, logout);
 
 //update an user -> ACTUALIZAR PERFIL    
 router.put("/usuarios/:userId", emailAndpasswordValidator, emailAndpasswordValidate, updateUser); 
