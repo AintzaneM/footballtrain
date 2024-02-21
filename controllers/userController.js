@@ -52,41 +52,60 @@ exports.assignUserToPlan = async (req, res, next) => {
   }
 };
 
-exports.assignUserToTeam = async (req, res, next) => {
-  try {
-    const { userId, equipoId } = req.params;
 
-    // Validate user ID and plan ID
-    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(equipoId)) {
-      return res.status(400).json({ message: "Invalid user or plan ID: {}" });
-    }
-
-
-    // Check if the user and team exist
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-    const team = await Team.findById(equipoId);
-    if (!team) {
-      return res.status(404).json({ message: "Team not found" });
-    }
-
-    // Check if the user is already assigned to the team
-    if (team.userRefs.includes(userId)) {
-      return res.status(400).json({ message: "User is already assigned to the plan." });
-    }
-
-    // Associate the user with the team
-    user.teamRefs.push(equipoId);
-    await user.save();
-
-    return res.status(200).json({ message: "User assigned to plan successfully." });
-  } catch (error) {
-    console.error("Error associating user with team:", error);
-    res.status(500).json({ error: "Error associating user with team" });
-  }
+exports.assignPlayersToTeam = async (req, res, next) => {
+  const { playerRefs } = req.body;
+  const equipoId = req.params.equipoId;
+  await assignUsersToTeam(equipoId, playerRefs, req, res);
+}
+exports.assignTrainersToTeam = async (req, res, next) => {
+  const { trainerRefs } = req.body;
+  const equipoId = req.params.equipoId;
+  
+  await assignUsersToTeam(equipoId, trainerRefs, req, res);
 };
+
+async function assignUsersToTeam(equipoId, userIds, req, res) {
+
+  const team = await Team.findById(equipoId);
+  
+  if (!team) {
+    return res.status(404).json({ message: "Team not found" });
+  }
+
+ if(!req.user || req.user.role.toLowerCase() !== 'trainer') {
+  return res.status(403).json({ message: "Only trainers can assign users to teams" });
+  }
+
+  // Check if the userIds array is provided and not empty
+  if (!userIds || userIds.length === 0) {
+    console.log("usersids",userIds)
+    return res.status(400).json({ message: "Please provide user IDs to assign" });
+  }
+    // Filtrar los usuarios por su rol
+
+  try{
+    const users = await User.find({ _id: { $in: userIds } });
+    const players = users.filter(user => user.role === 'player');
+    const trainers = users.filter(user => user.role === 'trainer');
+
+   // Actualizar las referencias en el equipo según el rol de los usuarios
+    team.playerRefs.addToSet(...players.map(player => player._id));
+    team.trainerRefs.addToSet(...trainers.map(trainer => trainer._id));
+    
+    await User.updateMany(
+      { _id: { $in: userIds } },
+      { $addToSet: { teamRefs: equipoId } }
+    );
+    await team.save();
+    res.status(200).json(team);
+  }catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+  
+}
+
 
 
 //join
