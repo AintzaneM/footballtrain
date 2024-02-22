@@ -1,17 +1,39 @@
 const User = require("../models/UserModel");
 const Plan = require("../models/PlanModel");
+const Club = require("../models/ClubModel");
+const Team = require("../models/TeamModel");
+
 const bcrypt = require("bcrypt");
 const { default: mongoose } = require("mongoose");
 
 exports.createUser = async (req, res, next) => {
   try {
     console.log("requestbody", req.body)
+    console.log('SESSION =====> ', req.session);
 
-    const { username, email, password, profilePicture, clubName, teamName, role, clubRefs, teamRefs,
+
+    const { username, email, password, profilePicture, clubId, teamId, role, clubRefs, teamRefs,
       planRefs, attendanceRefs, } = req.body;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
+    let clubName = "";
+    let teamName = "";
+
+    // Conditionally populate clubName and teamName based on user's role
+    if (role === 'player') {
+      // Retrieve club and team details by their IDs
+      const club = await Club.findById(clubId);
+      const team = await Team.findById(teamId);
+      
+      // Populate clubName and teamName if club and team exist
+      if (club) {
+        clubName = club.clubName;
+      }
+      if (team) {
+        teamName = team.teamName;
+      }
+    }
     const newUser = new User({
       username,
       email,
@@ -27,6 +49,24 @@ exports.createUser = async (req, res, next) => {
     });
 
     const user = await newUser.save();
+
+    if (role === 'trainer' && (clubId || teamId)) {
+      let update = {};
+      if (clubId) {
+        const club = await Club.findById(clubId);
+        if (club) {
+          update.clubName = club.clubName;
+        }
+      }
+      if (teamId) {
+        const team = await Team.findById(teamId);
+        if (team) {
+          update.teamName = team.teamName;
+        }
+      }
+      // Update user with clubName and teamName
+      await User.findByIdAndUpdate(user._id, update);
+    }
     console.log({ message: "user saved", user });
     res.status(200).json(user);
     next();
@@ -37,6 +77,8 @@ exports.createUser = async (req, res, next) => {
 };
 
 exports.loginUser = async (req, res, next) => {
+      console.log('SESSION =====> ', req.session);
+
   try {
     const user = await User.findOne({
       email: req.body.email,

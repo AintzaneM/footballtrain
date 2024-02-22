@@ -26,11 +26,11 @@ const userSchema = mongoose.Schema({
         type: String,
         default: ""
     },
-    clubName: {
+    clubId: {
         type: String,
         default: "",
     },
-    teamName: {
+    teamId: {
         type: String,
         default: "",
     },

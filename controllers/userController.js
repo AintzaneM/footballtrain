@@ -96,7 +96,7 @@ async function assignUsersToTeam(equipoId, userIds, req, res) {
     
     await User.updateMany(
       { _id: { $in: userIds } },
-      { $addToSet: { teamRefs: equipoId } }
+      { $addToSet: { teamRefs: equipoId }, }
     );
     await team.save();
     res.status(200).json(team);
@@ -105,7 +105,7 @@ async function assignUsersToTeam(equipoId, userIds, req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
   
-}
+};
 
 exports.assignClubToTeam = async (req, res, next) => {
   const { clubId, teamId } = req.body;
@@ -154,13 +154,65 @@ exports.assignClubToTeam = async (req, res, next) => {
     await club.save();
 
     res.status(200).json({ message: "Team assigned to club successfully" });
+    next();
   } catch (error) {
     console.error('Error assigning team to club:', error);
     res.status(500).json({ message: "Internal server error" });
   }
 
+};
+
+exports.assignPlanToTeam = async (req, res, next) => {
+  const { teamId, planId } = req.body;
+
+  try {
+    // Find the team document by its ID
+    const team = await Team.findById(teamId);
+    if (!team) {
+      return res.status(404).json({ message: "Team not found" });
+    }
+
+    // Find the plan document by its ID
+    const plan = await Plan.findById(planId);
+    if (!plan) {
+      return res.status(404).json({ message: "Plan not found" });
+    }
+
+    // Update planRefs in team schema
+    team.planRefs.addToSet(planId);
+    await team.save();
+
+    // Update teamRefs in plan schema
+    plan.teamRefs.addToSet(teamId);
+
+    // Update teamRef, playerRefs, and trainerRefs in plan schema
+    plan.playerRefs = team.playerRefs;
+    plan.trainerRefs = team.trainerRefs;
+
+
+    // Update planRefs in user schema
+  
+    const playersToUpdate = await User.find({ _id:{$in: team.playerRefs}});
+    for (const player of playersToUpdate) {
+      player.teamRefs.addToSet(teamId);
+      player.planRefs.addToSet(planId);
+      await player.save();
+    }
+
+    const trainersToUpdate = await User.find({ _id:{$in: team.trainerRefs}});
+    for (const trainer of trainersToUpdate) {
+      trainer.teamRefs.addToSet(teamId);
+      trainer.planRefs.addToSet(planId);
+
+      await trainer.save();
+    }
+    await plan.save();
+    res.status(200).json({ message: "Plan assigned to team successfully" });
+    next();
+  } catch (error) {
+    console.error('Error assigning plan to team:', error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
-
-
 //join
 //Ver detalles entrenamientos -> readPlan
